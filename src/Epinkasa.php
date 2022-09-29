@@ -29,12 +29,13 @@ trait Epinkasa
         $userId=Auth::user()->id;
         $apiKey=config('epinkasa.key');
         $apiSecret=config('epinkasa.secret');
+        $reportEmail = $this->getReportEmail();
         $params=[
             'api_key' => $apiKey,
             'api_secret' => $apiSecret,
             'username'   => $username,
             'user_id'	 => $role,
-            'user_mail'  => "game.oh.vn@gmail.com",
+            'user_mail'  => $reportEmail,
             'user_phone'	 => ""
         ];
         $key="ITEMTR_" . $username . "_" . $role;
@@ -58,12 +59,13 @@ trait Epinkasa
         $userId=Auth::user()->id;
         $apiKey=config('epinkasa.key');
         $apiSecret=config('epinkasa.secret');
+        $reportEmail=$this->getReportEmail();
         $params=[
             'api_key' => $apiKey,
             'api_secret' => $apiSecret,
             'username'   => $username,
             'user_id'	 => $userId,
-            'user_mail'  => "game.oh.vn@gmail.com",
+            'user_mail'  => $reportEmail,
             'user_phone'	 => ""
         ];
         $key="ITEMTR_" . $username . "_" . $userId;
