@@ -13,7 +13,6 @@ class LibServiceProvider extends ServiceProvider
             __DIR__.'/../config' => config_path(),
         ]);
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadTranslationsFrom( __DIR__.'/../lang', 'hanoivip');
         $this->mergeConfigFrom( __DIR__.'/../config/epinkasa.php', 'epinkasa');
     }

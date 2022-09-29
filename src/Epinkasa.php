@@ -2,10 +2,6 @@
 
 namespace Hanoivip\Epinkasa;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -13,15 +9,23 @@ use Illuminate\Support\Facades\Log;
 use Mervick\CurlHelper;
 use App\EpinkasaLog;
 
-class EpinkasaController extends BaseController
-{
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+trait Epinkasa
+{   
+    public function startGameFlow(Request $request)
+    {
+        return redirect()->route('wizard.role', ['next' => 'epinkasa.game.do']);
+    }
     
-    public function redirect(Request $request)
+    public function startWebFlow(Request $request)
+    {
+        return redirect()->route('epinkasa.web.do');
+    }
+    
+    public function doGameFlow(Request $request)
     {
         $sv=$request->get('svname');
         $role=$request->get('role');
-        $username=Auth::user()->name;
+        $username=$this->getUsername();//name,email,ID
         $userId=Auth::user()->id;
         $apiKey=config('epinkasa.key');
         $apiSecret=config('epinkasa.secret');
@@ -33,8 +37,37 @@ class EpinkasaController extends BaseController
             'user_mail'  => "game.oh.vn@gmail.com",
             'user_phone'	 => ""
         ];
-        $key="ITEMTR_" . $username . '_' . $role;
+        $key="ITEMTR_" . $username . "_" . $role;
         Cache::put($key, ['sv'=>$sv, 'uid'=>$userId], 86400);
+        $url = "https://www.epinkasa.com/dealer/api/create";
+        $response = CurlHelper::factory($url)->setPostParams($params)->exec();
+        $message = 'Please try again and contact customer support!';
+        if ($response['status'] == 200 && !empty($response['data']))
+        {
+            $message = $response['data']['message'];
+            return redirect()->away($message);
+        }
+        return view('hanoivip::epinkasa-failure', ['message' => $message ]);
+    }
+    
+    public function doWebFlow(Request $request)
+    {
+        $username=$this->getUsername();
+        if (empty($username))
+            abort(500, 'Usename must be defined!');
+        $userId=Auth::user()->id;
+        $apiKey=config('epinkasa.key');
+        $apiSecret=config('epinkasa.secret');
+        $params=[
+            'api_key' => $apiKey,
+            'api_secret' => $apiSecret,
+            'username'   => $username,
+            'user_id'	 => $userId,
+            'user_mail'  => "game.oh.vn@gmail.com",
+            'user_phone'	 => ""
+        ];
+        $key="ITEMTR_" . $username . "_" . $userId;
+        Cache::put($key, ['sv'=>'web','uid'=>$userId], 86400);
         $url = "https://www.epinkasa.com/dealer/api/create";
         $response = CurlHelper::factory($url)->setPostParams($params)->exec();
         $message = 'Please try again and contact customer support!';
@@ -105,12 +138,7 @@ class EpinkasaController extends BaseController
         
         if ($Status == 1)
         {
-            $action = config('epinkasa.action');
-            switch ($action)
-            {
-                case 'gameserver': dispatch(new EpinkasaSendItem($log));
-                default: dispatch(new EpinkasaModBalance($log));
-            }
+            $this->onPaymentSuccess($log);
         }
         // cleanup
         Cache::forget($key);
