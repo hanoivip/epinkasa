@@ -1,0 +1,2 @@
+# payment-method-epinkasa
+# epinkasa
