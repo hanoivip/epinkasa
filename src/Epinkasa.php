@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Mervick\CurlHelper;
+use Hanoivip\Epinkasa\EpinkasaLog;
 
 trait Epinkasa
 {   
