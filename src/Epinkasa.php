@@ -11,11 +11,16 @@ use App\EpinkasaLog;
 
 trait Epinkasa
 {   
+    /**
+     * Phải chọn được nhân vật trước
+     */
     public function startGameFlow(Request $request)
     {
         return redirect()->route('wizard.role', ['next' => 'epinkasa.game.do']);
     }
-    
+    /**
+     * Vào nạp ngay, không cần chọn nhân vật
+     */
     public function startWebFlow(Request $request)
     {
         return redirect()->route('epinkasa.web.do');

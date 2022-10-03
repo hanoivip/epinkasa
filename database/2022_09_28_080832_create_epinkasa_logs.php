@@ -11,8 +11,8 @@ class CreateEpinkasaLogs extends Migration
         Schema::create('epinkasa_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('user_id');
-            $table->string('server');
-            $table->string('role_id');
+            $table->string('server')->default('');
+            $table->string('role_id')->default('');
             $table->string('mapping');
             $table->string('status');
             $table->string('recharge_status');
