@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Hanoivip\Epinkasa;
 
 use Illuminate\Database\Eloquent\Model;
 
