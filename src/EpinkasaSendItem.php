@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Hanoivip\Events\Game\UserBuyItem;
-// FUCK? multiple time? ko the su dung active record o day?
+
 class EpinkasaSendItem implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -43,6 +43,8 @@ class EpinkasaSendItem implements ShouldQueue
                 }
                 else
                 {
+                    $this->log->recharge_status = 2;
+                    $this->log->save();
                     $this->release(60);
                 }
             }

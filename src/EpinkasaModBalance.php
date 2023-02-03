@@ -27,7 +27,7 @@ class EpinkasaModBalance implements ShouldQueue
     public function handle()
     {
         Redis::funnel('EpinkasaModBalance@' . $this->log->user_id)->limit(1)->then(function () {
-            if (empty($this->log->recharge_status))
+            if (empty($this->log->recharge_status) || $this->log->recharge_status != 1)
             {
                 $recharge = Recharge::where('code', $this->log->package)->first();
                 if (empty($recharge))
@@ -35,7 +35,7 @@ class EpinkasaModBalance implements ShouldQueue
                     Log::error("EpinkasaModBalance package not exist!");
                     return;
                 }
-                $result = BalanceFacade::add($this->log->user_id, $recharge->coin, "Epinkasa");
+                $result = BalanceFacade::add($this->log->user_id, $recharge->coin, "EpinkasaCoin");
                 if ($result === true)
                 {
                     event(new UserTopup(
@@ -48,6 +48,8 @@ class EpinkasaModBalance implements ShouldQueue
                 }
                 else
                 {
+                    $this->log->recharge_status = 2;
+                    $this->log->save();
                     $this->release(60);
                 }
             }
