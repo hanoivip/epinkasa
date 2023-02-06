@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Mervick\CurlHelper;
+use Exception;
 use Hanoivip\Epinkasa\EpinkasaLog;
 
 trait Epinkasa
@@ -43,15 +44,19 @@ trait Epinkasa
             'user_mail'  => $reportEmail,
             'user_phone'	 => ""
         ];
-        $key="ITEMTR_" . $username . "_" . $role;
-        Cache::put($key, ['sv'=>$sv, 'uid'=>$userId], 86400);
-        $url = "https://www.epinkasa.com/dealer/api/create";
-        $response = CurlHelper::factory($url)->setPostParams($params)->exec();
-        $message = 'Please try again and contact customer support!';
-        if ($response['status'] == 200 && !empty($response['data']))
-        {
-            $message = $response['data']['message'];
-            return redirect()->away($message);
+        try {
+            $url = "https://www.epinkasa.com/dealer/api/create";
+            $response = CurlHelper::factory($url)->setPostParams($params)->exec();
+            $message = 'Please try again and contact customer support!';
+            if ($response['status'] == 200 && !empty($response['data']))
+            {
+                $key="ITEMTR_" . $username . "_" . $role;
+                Cache::put($key, ['sv'=>$sv, 'uid'=>$userId], 86400);
+                $message = $response['data']['message'];
+                return redirect()->away($message);
+            }
+        } catch (Exception $ex) {
+            Log::error("Epinkasa exception: " . $ex->getMessage());
         }
         return view('hanoivip::epinkasa-failure', ['message' => $message ]);
     }
@@ -73,15 +78,19 @@ trait Epinkasa
             'user_mail'  => $reportEmail,
             'user_phone'	 => ""
         ];
-        $key="ITEMTR_" . $username . "_" . $userId;
-        Cache::put($key, ['sv'=>'web','uid'=>$userId], 86400);
-        $url = "https://www.epinkasa.com/dealer/api/create";
-        $response = CurlHelper::factory($url)->setPostParams($params)->exec();
-        $message = 'Please try again and contact customer support!';
-        if ($response['status'] == 200 && !empty($response['data']))
-        {
-            $message = $response['data']['message'];
-            return redirect()->away($message);
+        try {
+            $url = "https://www.epinkasa.com/dealer/api/create";
+            $response = CurlHelper::factory($url)->setPostParams($params)->exec();
+            $message = 'Please try again and contact customer support!';
+            if ($response['status'] == 200 && !empty($response['data']))
+            {
+                $key="ITEMTR_" . $username . "_" . $userId;
+                Cache::put($key, ['sv'=>'web','uid'=>$userId], 86400);
+                $message = $response['data']['message'];
+                return redirect()->away($message);
+            }
+        } catch (Exception $ex) {
+            Log::error("Epinkasa exception: " . $ex->getMessage());
         }
         return view('hanoivip::epinkasa-failure', ['message' => $message ]);
     }
