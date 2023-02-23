@@ -44,10 +44,10 @@ trait Epinkasa
             'user_mail'  => $reportEmail,
             'user_phone'	 => ""
         ];
+        $message = 'Please try again and contact customer support!';
         try {
             $url = "https://www.epinkasa.com/dealer/api/create";
             $response = CurlHelper::factory($url)->setPostParams($params)->exec();
-            $message = 'Please try again and contact customer support!';
             if ($response['status'] == 200 && !empty($response['data']))
             {
                 $key="ITEMTR_" . $username . "_" . $role;
