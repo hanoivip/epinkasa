@@ -62,7 +62,7 @@ trait Epinkasa
         } catch (Exception $ex) {
             Log::error("Epinkasa exception: " . $ex->getMessage());
         }
-        return view('hanoivip::epinkasa-failure', ['message' => $message ]);
+        return view('hanoivip::epinkasa-failure', ['error' => $message ]);
     }
     
     public function doWebFlow(Request $request)
