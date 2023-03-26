@@ -55,6 +55,10 @@ trait Epinkasa
                 $message = $response['data']['message'];
                 return redirect()->away($message);
             }
+            else 
+            {
+                Log::error("Request epinkasa fail: " . $response['content']);
+            }
         } catch (Exception $ex) {
             Log::error("Epinkasa exception: " . $ex->getMessage());
         }

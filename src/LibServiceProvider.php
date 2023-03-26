@@ -15,6 +15,7 @@ class LibServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database');
         $this->loadTranslationsFrom( __DIR__.'/../lang', 'hanoivip');
         $this->mergeConfigFrom( __DIR__.'/../config/epinkasa.php', 'epinkasa');
+        $this->loadViewsFrom(__DIR__ . '/../views', 'hanoivip');
     }
     
     public function register()
