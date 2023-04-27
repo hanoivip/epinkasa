@@ -14,10 +14,15 @@ trait Epinkasa
 {   
     /**
      * Phải chọn được nhân vật trước
+     * @deprecated
      */
-    public function startGameFlow(Request $request)
+    public function startGameFlow1(Request $request)
     {
         return redirect()->route('wizard.role', ['next' => 'epinkasa.game.do']);
+    }
+    public function startGameFlow(Request $request)
+    {
+        return view('hanoivip::epinkasa');
     }
     /**
      * Vào nạp ngay, không cần chọn nhân vật
@@ -53,7 +58,14 @@ trait Epinkasa
                 $key="ITEMTR_" . $username . "_" . $role;
                 Cache::put($key, ['sv'=>$sv, 'uid'=>$userId], 86400);
                 $message = $response['data']['message'];
-                return redirect()->away($message);
+                if ($request->expectsJson())
+                {
+                    return ['error' => 0, 'message' => 'success', 'data' => ['url' => $message]];
+                }
+                else 
+                {
+                    return redirect()->away($message);
+                }
             }
             else 
             {
