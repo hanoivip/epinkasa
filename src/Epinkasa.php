@@ -123,6 +123,7 @@ trait Epinkasa
      [netKazanc] => 0.95
      [hash] => Gqpe3MGCkpDzH1c96W2XCsROj98lcD9h60GJBUdB4Es=
      )
+     20230602: save more fields in log
      */
     public function callback(Request $request)
     {
@@ -150,8 +151,21 @@ trait Epinkasa
         $hashKontrol = base64_encode(hash_hmac('sha256',$SiparisID."|".$roleId."|".$ReturnData."|".$Status."|".$OdemeKanali."|".$OdemeTutari."|".$NetKazanc."|".$apiKey, $apiSecret, true));
         if ($hashKontrol != $Hash)
         {
-            //Log::debug("NOK2");
+            Log::debug("Epinkasa hash check fail, calucated $hashKontrol expected $Hash");
             return response("NOK2");
+        }
+        
+        // check prices
+        $prices = config('epinkasa.prices', []);
+        if (empty($prices) || !isset($prices[$ReturnData]))
+        {
+            Log::debug("Epinkasa package is not supported $ReturnData");
+            return response("NOK3");
+        }
+        if ($prices[$ReturnData] != $OdemeTutari)
+        {
+            Log::debug("Epinkasa package price is modified");
+            return response("NOK4");
         }
         
         // save log
@@ -166,6 +180,10 @@ trait Epinkasa
         $log->status = $Status;
         $log->recharge_status = 0;
         $log->package = $ReturnData;
+        // added
+        $log->method = $OdemeKanali;
+        $log->amount = $OdemeTutari;
+        $log->net_amount = $NetKazanc;
         $log->save();
         
         if ($Status == 1)
